@@ -1,28 +1,26 @@
-pipeline {
+ pipeline {
     agent any
 
     stages {
-        stage('GIT CLONE SCM') {
+        stage('CLONE SCM') {
             steps {
-			    echo "CLONING code from Github repo"
-               git branch: 'main', url: 'https://github.com/devopstraininghub/mindcircuit14.git'
+                echo 'Cloning fb-app project code'
+				git branch: 'main', url: 'https://github.com/devopstraininghub/mindcircuit14.git'
             }
         }
 		
-        stage('BUILD ') {
+		stage('Build Artifact') {
             steps {
-                echo "Building code "
+                echo 'Generating artifact with maven build tool'
 				sh 'mvn clean install'
-				
             }
         }
-
-        stage('TOMCAT DEPLOY') {
-            steps {
-                echo "Deploying war file to tomcat"
-				deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://ec2-54-173-89-134.compute-1.amazonaws.com:8091/')], contextPath: 'facebook', war: '**/*.war'
-            }
-        }		
 		
+		stage('Deploy to tomcat') {
+            steps {
+                echo 'Deploying artifact to tomcat webserver'
+				deploy adapters: [tomcat9(credentialsId: 'FB-PAGE', path: '', url: 'http://98.81.204.216:8091/')], contextPath: 'fb-PAGE', war: '**/*.war\''
+            }
+        }
     }
 }
